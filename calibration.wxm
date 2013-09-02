@@ -197,7 +197,7 @@ below. First [α,β,γ] part, then [xa, ya, xc] part, and [r] at the end.
 After the computation we fixed the firmware parameters with computed [r,xa,ya,xc,α,β,γ] and measured
 new set of points m (see above), and then computed again, and fixed, and computed ...
 When we started with bed leveling errors within 0.2 mm, we needed 3 loops to achieve bed leveling within
-0.005 mm. We did not bother more.
+0.05 mm. We did not bother more.
    [wxMaxima: comment end   ] */
 
 /* [wxMaxima: input   start ] */
