@@ -52,14 +52,15 @@ define( tc(x,y), T(xc, yc) ) $
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: comment start ]
-Tower location errors and diagonal rod error can be modified.
+ Diagonal rod error, tower location errors, and endstop error on tower C can be modified.
    [wxMaxima: comment end   ] */
 
 /* [wxMaxima: input   start ] */
 er : 0 $
-exa : 2.5 $
-eya : 4.3 $
+exa : 0 $
+eya : 0 $
 exc : 0 $
+ezc: 1 $
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: comment start ]
@@ -80,7 +81,7 @@ These are real life based (i.e. they inculde errors).
 /* [wxMaxima: input   start ] */
 A : (xx-(xa+exa))^2 + (yy-(ya+eya))^2 + (zz-ta(x,y))^2 = (r+er)^2 $
 B : (xx-(xb+exb))^2 + (yy-(yb+eyb))^2 + (zz-tb(x,y))^2 = (r+er)^2 $
-C : (xx-(xc+exc))^2 + (yy-(yc+eyc))^2 + (zz-tc(x,y))^2 = (r+er)^2 $
+C : (xx-(xc+exc))^2 + (yy-(yc+eyc))^2 + (zz-(tc(x,y)+ezc))^2 = (r+er)^2 $
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: comment start ]
@@ -97,13 +98,13 @@ define( FZErr(x,y), rhs(ZErr[2]) ) $
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: comment start ]
-Show the z eror function acros the heatbed.
+Show the z error function across the heatbed.
    [wxMaxima: comment end   ] */
 
 /* [wxMaxima: input   start ] */
 rr : 120 $
 l(x,y) := max(0,signum(rr^2-x^2-y^2)) $
-plot3d( l(x,y)*FZErr(x,y), [x,-rr,rr], [y,-rr,rr] ) $
+plot3d( l(x,y)*(FZErr(x,y)), [x,-rr,rr], [y,-rr,rr] ) $
 /* [wxMaxima: input   end   ] */
 
 /* Maxima can't load/batch files which end with a comment! */

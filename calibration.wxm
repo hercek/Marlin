@@ -12,15 +12,19 @@ You can use, modify, and redistribute this under GNU GENERAL PUBLIC LICENSE Vers
 
 /* [wxMaxima: comment start ]
 This document helps to find proper values for these firmware parameters: tower positions, diagonal rod length,
-and endstop position offsets.
-* We assume that all your diagonal rods have the same length (although the common length is not know
+and top endstop position offsets. Errors in these firmware parameters can be fixed perfectly provided the
+assumptions bellow are valid.
+* We assume that the towers are parallel. Ensuring that the towers are parallel is not be hard - just drill
+both top and bottom plate at once.
+* We assume that all your diagonal rods have the same length (although the common length is not known
 precisely). You can easily achieve this with a jig. (Note: If your diagonal rods do not have the same length it will
 introduce rotations to your platform. These will not have that big impact on z-height but will have significant
-impact on x/y precision)
-* We assume that the towers are parallel and hope that the bed is perpendicular to the towers. Ensuring
-that the towers are parallel should not be hard - just drill both top and bottom plate at once. Making sure the
-bed is perpendicular is hard but callibration can take care of that ... except that your prints will be as skewed
-as your bed is :-)
+impact on x/y precision.)
+* We assume that the bed is perpendicular to the towers. Making sure the bed is perpendicular is harder but
+callibration can partially fix it with the top endstop adjustements. This compensation will not be perfect. For
+example, if your bed is 1 mm higer on one side (compared to the other side) then this will lead to errors smaller
+than about 0.3 mm, possibly much smaller. I did not investigate this in details. This compensation using top
+endstops will also lead to your prints being as skewed as your bed is.
 * We assume no other auto level is active (e.g. Johann's auto leveling cannot be enabled).
    [wxMaxima: comment end   ] */
 
@@ -57,7 +61,6 @@ in Configuration.h).
    [wxMaxima: comment end   ] */
 
 /* [wxMaxima: comment start ]
-
 Define your geometry as specified in the firmware here:
    [wxMaxima: comment end   ] */
 
