@@ -1,5 +1,5 @@
 /* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
-/* [ Created with wxMaxima version 13.04.1 ] */
+/* [ Created with wxMaxima version 13.04.2 ] */
 
 /* [wxMaxima: title   start ]
 Rostock Calibration
@@ -174,19 +174,28 @@ load( lbfgs ) $
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: comment start ]
-First we try to compute all the precise parameters at once. In theory this should work. We should get the correct
+First we try to compute all the precise parameters at once. In theory this may work. We would get the correct
 firmware parameters in one step. The equation should have only two real minimums. One corresponing to the
 diagonal rods pointing down and small absolute values of  (α,β,γ) and one corresponding to the diagonal rods
 poining up and huge absolute values of  (α,β,γ). Since our starting point has α=β=γ=0 we should get to the
 proper minimum.
 Unfortunately this did not work well. The result tended to have too big values for r. Notice that we can measure
 diagonal rod with precision of ±1 mm easily so if the result claims it should be 5 mm longer than what we
-measured, then it is obviously wrong.
-So our function does not converge as well as we would like. Possible reason is that we do not provide precise
-values for measured values at headbed (imprecise microswitches, steppers do not move continously, M114
-reports tower positions with only 2 decimal palces). Since the order of equation is six, these no so big measurement
-errors can have significant consequences. Other option is that there is an error in our mathematical model,
-or there are errors in firmware, .... or many other options.
+measured, then it is obviously wrong. The probable reason for bad convegence is that we try to optimize both
+the tower positions and the diagonal rod length at once. The tower positions contain the delta radius (corrected
+for tower radial distance errors if the towers are not precisely positioned). Both errors in the diagonal rod length
+and the delta radius lead to center symetric heatbed z-position error (looks like a tip of ellipsoid). These two
+can (at least partialy) compensate each other. That means that their convergence (when optimized) together
+is poor. They can drift from their precise values together more easily. This drift will result in incorrect size of
+the printed objects. Incorrect steps/mm setting for the tower carriages results in the incorrect size of the
+printed objects too. That means, do not optimize r and (xa,yz,xc) at once. If you do then you will probably
+level your bed but the printed objects will probably have incorrect size.
+So our function does not converge as well as we would like. Both because of diagonalRodLength/deltRadius
+issue and because we do not provide precise values for the measured z-heights at headbed (imprecise
+microswitches, steppers do not move continously, M114 reports tower positions with only 2 decimal palces).
+Since the order of equation is six, these no so big measurement errors can have significant consequences.
+Other option is that there is an error in our mathematical model, or there are errors in firmware, .... or many
+other options.
 We skipped this direct computation. But you can try. Maybe a miracle will happen.
    [wxMaxima: comment end   ] */
 
