@@ -189,8 +189,8 @@
 // PID settings:
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
-#define BANG_MAX 120 // limits current to nozzle while in bang-bang mode; 255=full current
-#define PID_MAX 120 // limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
+#define BANG_MAX 255 // limits current to nozzle while in bang-bang mode; 255=full current
+#define PID_MAX 255 // limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
 #ifdef PIDTEMP
   //#define PID_DEBUG // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
@@ -346,7 +346,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // For deltabots this means top and center of the cartesian print volume.
 #define MANUAL_X_HOME_POS 0
 #define MANUAL_Y_HOME_POS 0
-#define MANUAL_Z_HOME_POS 418.48 // For delta: Distance between nozzle and print surface after homing.
+#define MANUAL_Z_HOME_POS 416.2 // For delta: Distance between nozzle and print surface after homing.
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
@@ -541,7 +541,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not ass annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
-//#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM
 
 // Incrementing this by 1 will double the software PWM frequency,
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
