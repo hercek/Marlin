@@ -834,6 +834,8 @@ void prepare_move_raw()
   }
 }
 
+float const z_probe_lift = 2;
+
 float z_probe() {
   enable_endstops(true);
   float start_z = current_position[Z_AXIS];
@@ -856,9 +858,60 @@ float z_probe() {
   plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
 
   feedrate = 300*60;
-  destination[Z_AXIS] = mm+2;
+  destination[Z_AXIS] = mm+z_probe_lift;
   prepare_move_raw();
+  st_synchronize();
   return mm;
+}
+
+void sort(int cnt, float zs[]) {
+  float tmp;
+  do{
+    int next_cnt = 0;
+    for(int i = 1; i < cnt; ++i)
+      if (zs[i-1] > zs[i]) {
+        tmp = zs[i-1]; zs[i-1] = zs[i]; zs[i] = tmp;
+        next_cnt = i;
+      }
+    cnt = next_cnt;
+  }while( cnt > 1 );
+}
+
+float z_probe_series() {
+  int const cnt = 5;
+  float zs[cnt];
+  int i;
+  for(i = 0; i < cnt; ++i)
+    zs[i] = z_probe();
+  //
+  float z_avg = 0;
+  for (i = 1; i < cnt-1; ++i)
+    z_avg += zs[i];
+  z_avg = z_avg / (cnt-2);
+  float z_adj = z_avg - zs[cnt-1] - z_probe_lift;
+  //
+  sort(cnt, zs);
+  SERIAL_PROTOCOLPGM("Z values: ");
+  for (int i = 0; i < cnt; ++i) {
+    SERIAL_PROTOCOL(zs[i]);
+    if (i < cnt-1)
+      SERIAL_PROTOCOLPGM(", ");
+  }
+  SERIAL_PROTOCOLLN("");
+  //
+  SERIAL_PROTOCOLPGM("Position: X: ");
+  SERIAL_PROTOCOL(current_position[X_AXIS]);
+  SERIAL_PROTOCOLPGM(" Y: ");
+  SERIAL_PROTOCOL(current_position[Y_AXIS]);
+  SERIAL_PROTOCOLPGM(" Z: ");
+  SERIAL_PROTOCOLLN(current_position[Z_AXIS]+z_adj);
+  SERIAL_PROTOCOLPGM("Towers: X: ");
+  SERIAL_PROTOCOL(float(st_get_position(X_AXIS))/axis_steps_per_unit[X_AXIS]+z_adj);
+  SERIAL_PROTOCOLPGM(" Y: ");
+  SERIAL_PROTOCOL(float(st_get_position(Y_AXIS))/axis_steps_per_unit[Y_AXIS]+z_adj);
+  SERIAL_PROTOCOLPGM(" Z: ");
+  SERIAL_PROTOCOLLN(float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS]+z_adj);
+  return z_avg;
 }
 
 void process_commands()
@@ -1088,7 +1141,7 @@ void process_commands()
       saved_feedrate = feedrate;
       saved_feedmultiply = feedmultiply;
       feedmultiply = 100;
-      z_probe();
+      z_probe_series();
       feedrate = saved_feedrate;
       feedmultiply = saved_feedmultiply;
       previous_millis_cmd = millis();
@@ -1624,18 +1677,18 @@ void process_commands()
     case 114: // M114
       SERIAL_PROTOCOLPGM("X:");
       SERIAL_PROTOCOL(current_position[X_AXIS]);
-      SERIAL_PROTOCOLPGM("Y:");
+      SERIAL_PROTOCOLPGM(" Y:");
       SERIAL_PROTOCOL(current_position[Y_AXIS]);
-      SERIAL_PROTOCOLPGM("Z:");
+      SERIAL_PROTOCOLPGM(" Z:");
       SERIAL_PROTOCOL(current_position[Z_AXIS]);
-      SERIAL_PROTOCOLPGM("E:");
+      SERIAL_PROTOCOLPGM(" E:");
       SERIAL_PROTOCOL(current_position[E_AXIS]);
 
       SERIAL_PROTOCOLPGM(MSG_COUNT_X);
       SERIAL_PROTOCOL(float(st_get_position(X_AXIS))/axis_steps_per_unit[X_AXIS]);
-      SERIAL_PROTOCOLPGM("Y:");
+      SERIAL_PROTOCOLPGM(" Y:");
       SERIAL_PROTOCOL(float(st_get_position(Y_AXIS))/axis_steps_per_unit[Y_AXIS]);
-      SERIAL_PROTOCOLPGM("Z:");
+      SERIAL_PROTOCOLPGM(" Z:");
       SERIAL_PROTOCOL(float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS]);
 
       SERIAL_PROTOCOLLN("");
