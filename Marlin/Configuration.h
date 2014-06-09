@@ -83,7 +83,7 @@
 #define DELTA_SEGMENTS_PER_SECOND 100
 
 // Center-to-center distance of the holes in the diagonal push rods.
-#define DELTA_DIAGONAL_ROD 249.380 // 250.015 mm
+#define DELTA_DIAGONAL_ROD 250.590 //249.86 (+1) mm
 // Diagonal rod squared
 #define DELTA_DIAGONAL_ROD_2 pow(DELTA_DIAGONAL_ROD,2)
 
@@ -113,12 +113,12 @@
 
 #else
 
-#define DELTA_TOWER1_X -107.048
-#define DELTA_TOWER1_Y  -61.990
-#define DELTA_TOWER2_X  107.048
-#define DELTA_TOWER2_Y  -61.990
-#define DELTA_TOWER3_X   -1.477
-#define DELTA_TOWER3_Y  123.980
+#define DELTA_TOWER1_X -107.178 //-107.071
+#define DELTA_TOWER1_Y  -62.015 // -61.915
+#define DELTA_TOWER2_X  107.178
+#define DELTA_TOWER2_Y  -62.015
+#define DELTA_TOWER3_X   -1.687 //  -1.596
+#define DELTA_TOWER3_Y  124.030
 
 #endif
 
