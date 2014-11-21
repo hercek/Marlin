@@ -1,5 +1,5 @@
 /* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
-/* [ Created with wxMaxima version 13.04.2 ] */
+/* [ Created with wxMaxima version 14.09.0 ] */
 
 /* [wxMaxima: title   start ]
 Rostock Calibration
@@ -71,10 +71,10 @@ Define your geometry as specified in the firmware here:
    [wxMaxima: comment end   ] */
 
 /* [wxMaxima: input   start ] */
-ir : 250.590 $
-ixa : -107.178 $
-iya : -62.015 $
-ixc : -1.687 $
+ir : 20047.20 $
+ixa : -8574.24 $
+iya : -4961.20 $
+ixc : -134.96 $
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: comment start ]
@@ -126,43 +126,73 @@ ZEq : subst( rhs(XEq[1]), x, subst(rhs(YEq[1]), y, C) ) ;
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: comment start ]
-Now we will measure errors in at least 7 positions (x,y).
+Now we will measure errors in at least 7+1 positions (x,y).
 The best points are the center, near each tower base, and most far away from each tower base. Select the
-non-center points as far away from the center as possible. The measurement will be done by touching printhead
-with the heatbed at these points and reading out the carriage positions on towers as reported by firmware (ta,tb,tc).
-More positions may be needed If you would want to optimize both the diagonal rod length and the delta radius at once.
-Only the 7 point option was tested so far.
+non-center points as far away from the center as possible. These are the first 7 points. Add one more point
+which is far from the other 7 points and not at the same radius (e.g. between two adjacent points at bed edge
+but at half the radius). The measurement will be done by touching printhead with the heatbed at these points
+and reading out the carriage positions on towers as reported by the firmware (ta,tb,tc).
+E.g. if you have a square bed then instead of one additional point add 4 of them - one for each square bed
+corner. You can add more points or you can measure each point more than once. But based on Dejay Rezme's
+simulations at least 8 (=7+1) distinct points are needed to achieve a good convergence.
+You can use any unit you like but the same unit must be used everywhere. If you are using Marlin then
+you will probably enter data in millimeters. If you are using Repetier then you will probably use steps.
+The measurements below are in steps. One block of numers represents one measurement point. The first
+point was measured 3 times, the other points were measured 2 times. A square bed was probed. The probe
+points were: centre, tower A base, opposite of tower C, tower B base, opposite of tower A, tower C base,
+opposite of tower B, bottom left corner, bottom right corner, top right corner, top left corner.
 The data format is [[ta,tb,tc]]. Define the measured data here:
    [wxMaxima: comment end   ] */
 
 /* [wxMaxima: input   start ] */
 m :
-[[227.34, 227.34, 227.21]
-,[258.65, 170.95, 171.55]
-,[233.28, 233.28, 127.56]
-,[170.94, 258.64, 169.76]
-,[127.96, 233.20, 232.52]
-,[170.82, 170.82, 258.62]
-,[233.19, 127.95, 233.80]
+[[18268,18268,18258]
+,[18269,18269,18259]
+,[18270,18270,18260]
+
+,[20846,12996,12867]
+,[20846,12996,12867]
+
+,[18774,18774,10716]
+,[18774,18774,10716]
+
+,[13089,20830,12740]
+,[13091,20832,12742]
+
+,[9343,18782,18454]
+,[9343,18782,18454]
+
+,[13506,13506,20796]
+,[13506,13506,20796]
+
+,[18792,9197,18538]
+,[18793,9198,18539]
+
+,[20743,13593,9682]
+,[20743,13593,9682]
+
+,[13578,20728,9457]
+,[13578,20728,9457]
+
+,[6050,16972,19383]
+,[6050,16972,19383]
+
+,[16996,6074,19506]
+,[16997,6075,19507]
 ] $
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: comment start ]
-Adjust cariage positions on towers by z-probe measured z-heights at positions nearest to the tower bases.
-The z-heights are zta, ztb, ztc. You can do this if you can measure the points as near the tower bases that
-the corresponding diagonal rod is almost vertical. Otherwise rather set them all to zero. This is done to make
-lbfgs later more stable, but it is not sure how much it really helps. The point is that we search for the endstop
-adjustements (α,β,γ) first and if we make this search very easy it should not influence the next search for the
-tower positions (i.e. also the delta radius) that much.
-It is probably best just to try first with (zta,ztb,ztc) set to (0,0,0) and only fiddle with it more if we have
-convergence problems later.
+Set your z-probe height. The probe measure point must be just below the tip; i.e. its (x,y) offset must be (0,0).
+But it can have nonzero height. If you know the height then set its value here. If you do not know it set it to 0.
+It does not really matter if it is not set precisely. The only consequence of incorrectly set probe height is that
+your all your computed tower endstop adjustements (α,β,γ) will be uniformly offset by the probe height error.
+In this case the z-probe height is 868 steps. Set your own value here:
    [wxMaxima: comment end   ] */
 
 /* [wxMaxima: input   start ] */
-zta : 9.49 $
-ztb : 9.49 $
-ztc : 9.49 $
-mm : map( lambda([lst], [ lst[1]-zta, lst[2]-ztb, lst[3]-ztc ]), m) $
+ph : 868 $
+mm : map( lambda([lst], [ lst[1]-ph, lst[2]-ph, lst[3]-ph ]), m) $
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: comment start ]
@@ -181,6 +211,7 @@ define( FAll(r,xa,ya,xc,α,β,γ), ''( lsum( funmake(ZFn,l), l, mm ) ) ) $
 OK, and here we go to find the best firmware parameters (r, xa, ya, xc, α, β, γ). We will do it by minimizing FAll.
    [wxMaxima: comment end   ] */
 
+/* [wxMaxima: hide output   ] */
 /* [wxMaxima: input   start ] */
 load( lbfgs ) $
 /* [wxMaxima: input   end   ] */
@@ -197,74 +228,29 @@ finds something. The best ε is the smallest one for which a result is found.
    [wxMaxima: comment end   ] */
 
 /* [wxMaxima: comment start ]
-First we try to compute all the precise parameters at once. In theory this may work especially if the heatbed
-z-heights were measured near enough the edge of the available built volume. That means the heatbed
-must be big enough to extend to the theoretical edge of the built area. If so we may get the correct
-firmware parameters in one step. Or not. The convergence properties are not well know as of now.
-The equation should have only two real minimums. One corresponing to the diagonal rods pointing down and
-small absolute values of  (α,β,γ) and one corresponding to the diagonal rods poining up and huge absolute
-values of  (α,β,γ). Since our starting point has α=β=γ=0 we should get to the proper minimum. Unfortunately
-this did not work well with our 7 point heatbed probing. The result tended to have too big values for r. Notice
-that we can measure diagonal rod with precision of ±1 mm easily so if the result claims it should be 2 mm
-longer than what we measured, then it is obviously wrong. The probable reason for bad convegence is that
-we try to optimize both the tower positions and the diagonal rod length at once. The tower positions contain
-the delta radius (corrected for tower radial/diagonal distance errors if the towers are not precisely positioned).
-Both errors in the diagonal rod length and the delta radius lead to nicely concave/convex heatbed z-position
-error (looks like a tip of ellipsoid or paraboloid). These two can partialy compensate for each other especially
-when measurements are not done far enough from center. That means that their convergence (when
-optimized) together may be poor. They can drift from their precise values together more easily. This drift will
-result in incorrect size (well and also incorrect shape because the error is not linear) of the printed objects.
-Incorrect steps/mm setting for the tower carriages results in the similar kind of error too. That means, we do
-not optimize r and (xa,yz,xc) at once, at least for now.
-So our function does not converge as well as we would like. Probably because of our particular 7-point probing,
-diagonal rod length / delta radius issue, and using imprecise values for the measured z-heights at headbed
-(imprecise microswitches, steppers do not move continously, M114 reports tower positions with only 2 decimal
-palces). Since the order of equation is six, these no so big measurement errors can have significant consequences
-together. Other option is that there is an error in our mathematical model, or there are errors in firmware,
-.... or many other options.
-We skipped this direct computation. But you can try. Especially if you probed your points far enough from the
-center. Maybe a miracle will happen.
+Here we compute all the precise parameters at once. This should work without problems if the heatbed is
+planar, the additional point was properly selected, and the z-heights were measured near enough the edge
+of the available built volume (for the points which should be at the edges). That means the heatbed must
+be big enough to extend to the theoretical edge of the built area. If so then we should get the correct
+firmware parameters in one step. The equation should have at most two real minimums. One corresponing
+to the diagonal rods pointing down and small absolute values of  (α,β,γ) and, possibly, one more
+corresponding to the diagonal rods poining up and huge absolute values of  (α,β,γ). Since our starting
+point has α=β=γ=0 we should get to the proper minimum. There were no convergence problems with
+the 11 points we selected.
+A posible reason for bad convegence is that we try to optimize both the tower positions and the diagonal
+rod length at once. The tower positions contain the delta radius (corrected for tower radial/diagonal distance
+errors if the towers are not precisely positioned). Both errors in the diagonal rod length and the delta radius
+lead to nicely concave/convex heatbed z-position error near the centre (looks like a tip of ellipsoid or
+paraboloid). These two can partialy compensate for each other especially when measurements are not
+done far enough from centre. That means that their convergence (when optimized and the measurement
+points are not far enough from the centre) together may be poor. They can drift from their precise values
+together more easily. This drift will result in incorrect size (well and also incorrect shape because the error
+is not linear) of the printed objects. Incorrect steps/mm setting for the tower carriages results in a similar
+kind of error too.
    [wxMaxima: comment end   ] */
 
 /* [wxMaxima: input   start ] */
-RV : lbfgs( FAll(r,xa,ya,xc,α,β,γ), [r,xa,ya,xc,α,β,γ], [ir,ixa,iya,ixc,0,0,0], 0.0001, [1,1]);
-/* [wxMaxima: input   end   ] */
-
-/* [wxMaxima: comment start ]
-So we skipped the direct computation above and instead computed the vector [r,xa,ya,xc,α,β,γ] in parts
-below. First [α,β,γ] part, then [xa, ya, xc] part, and [r] at the end.
-After the computation we fixed the firmware parameters with computed [r,xa,ya,xc,α,β,γ] and measured
-a new set of points m (see above), and then computed again, and fixed, and computed ...
-When we started with bed leveling errors within 0.2 mm, we needed 3 loops to achieve bed leveling within
-0.05 mm. We did not bother more.
-   [wxMaxima: comment end   ] */
-
-/* [wxMaxima: input   start ] */
-RVαβγ : lbfgs( FAll(ir,ixa,iya,ixc,α,β,γ), [α,β,γ], [0,0,0], 0.0000001, [1,1]);
-/* [wxMaxima: input   end   ] */
-
-/* [wxMaxima: input   start ] */
-sublis( append([r=ir,xa=ixa,ya=iya,xc=ixc],RVαβγ), FOne(r,xa,ya,xc,α,β,γ) );
-/* [wxMaxima: input   end   ] */
-
-/* [wxMaxima: input   start ] */
-RVxayaxc : lbfgs( sublis( RVαβγ, FAll(ir,xa,ya,xc,α,β,γ) ), [xa,ya,xc], [ixa,iya,ixc], 0.0001, [1,1]);
-/* [wxMaxima: input   end   ] */
-
-/* [wxMaxima: input   start ] */
-sublis( append([r=ir], RVxayaxc, RVαβγ), FOne(r,xa,ya,xc,α,β,γ) );
-/* [wxMaxima: input   end   ] */
-
-/* [wxMaxima: input   start ] */
-RVr : lbfgs( sublis( append(RVxayaxc,RVαβγ), FAll(r,xa,ya,xc,α,β,γ) ), [r], [ir], 0.0000000001, [1,1]);
-/* [wxMaxima: input   end   ] */
-
-/* [wxMaxima: input   start ] */
-sublis( append(RVr, RVxayaxc, RVαβγ), FOne(r,xa,ya,xc,α,β,γ) );
-/* [wxMaxima: input   end   ] */
-
-/* [wxMaxima: input   start ] */
-append( RVr, RVxayaxc, RVαβγ );
+RV : lbfgs( FAll(r,xa,ya,xc,α,β,γ), [r,xa,ya,xc,α,β,γ], [ir,ixa,iya,ixc,0,0,0], 0.001, [1,1]);
 /* [wxMaxima: input   end   ] */
 
 /* Maxima can't load/batch files which end with a comment! */
