@@ -1,5 +1,5 @@
 /* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
-/* [ Created with wxMaxima version 13.04.2 ] */
+/* [ Created with wxMaxima version 16.12.2 ] */
 
 /* [wxMaxima: title   start ]
 Rostock Tower Errors
@@ -22,10 +22,10 @@ Diagonal rod length and x/y coordinates of towers a/b/c (you can change these).
    [wxMaxima: comment end   ] */
 
 /* [wxMaxima: input   start ] */
-r : 250.0 $
-xa : -108.25 $
-ya : -62.5 $
-xc : 0 $
+r : 298.0$
+xa :  135*cos(-5*%pi/6) $
+ya : 135*sin(-5*%pi/6) $
+xc : 0.0 $
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: comment start ]
@@ -55,10 +55,10 @@ define( tc(x,y), T(xc, yc) ) $
    [wxMaxima: comment end   ] */
 
 /* [wxMaxima: input   start ] */
-er : -5.3 $
-exa : (-xa/100) $
-eya : (-ya/100) $
-exc : 0 $
+er : -1 $
+exa : -1*xa/530 $
+eya : -1*ya/530 $
+exc : 0$
 ezc : 0 $
 /* [wxMaxima: input   end   ] */
 
@@ -84,7 +84,7 @@ C : (xx-(xc+exc))^2 + (yy-(yc+eyc))^2 + (zz-(tc(x,y)+ezc))^2 = (r+er)^2 $
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: comment start ]
-Define a fucntion for z error around the (x,y) point.
+Define the fucntions for Z, Y, and X error around the (x,y) point.
    [wxMaxima: comment end   ] */
 
 /* [wxMaxima: input   start ] */
@@ -94,6 +94,8 @@ YEq : solve([A+B-2*C], [yy]) $
 ZEq : subst( rhs(XEq[1]), xx, subst(rhs(YEq[1]), yy, C) ) $
 ZErr : solve(ZEq, zz) $
 define( FZErr(x,y), rhs(ZErr[2]) ) $
+define (FYErr(x,y), subst(FZErr(x,y), zz, rhs(YEq[1])) - y) $
+define (FXErr(x,y), subst(FZErr(x,y), zz, rhs(XEq[1])) - x) $
 /* [wxMaxima: input   end   ] */
 
 /* [wxMaxima: comment start ]
@@ -101,9 +103,25 @@ Show the z error function across the heatbed.
    [wxMaxima: comment end   ] */
 
 /* [wxMaxima: input   start ] */
-rr : 120 $
-l(x,y) := max(0,signum(rr^2-x^2-y^2)) $
-plot3d( l(x,y)*(-5.3 +FZErr(x,y)), [x,-rr,rr], [y,-rr,rr] ) $
+rr : 100 $
+l(x,y,f) := if rr^2-x^2-y^2 > 0 then apply(f, [x,y]) else und $
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot3d( l(x, y, FZErr), [x,-rr,rr], [y,-rr,rr] ) $
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot3d( l(x,y, FYErr), [x,-rr,rr], [y,-rr,rr] ) $
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot3d( l(x,y,FXErr), [x,-rr,rr], [y,-rr,rr] ) $
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+FXYErr(x,y) := sqrt( FXErr(x,y)^2 + FYErr(x,y)^2) $
+plot3d( l(x,y,FXYErr), [x,-rr,rr], [y,-rr,rr] ) $
 /* [wxMaxima: input   end   ] */
 
 /* Maxima can't load/batch files which end with a comment! */
