@@ -248,10 +248,9 @@ also the diagonal rod length.
 /* [wxMaxima: input   start ] */
 define( ZFn(ta,tb,tc), lhs(ZEq) ) ;
 ZFns : map( lambda([args], apply(ZFn, args)), mm ) $
-ZFnsSansR : map( lambda([arg], subst(ir,r,arg)), ZFns ) $
+define( ZFns_r(r), ZFns ) $
 /* [wxMaxima: input   end   ] */
 
-/* [wxMaxima: hide output   ] */
 /* [wxMaxima: input   start ] */
 load(minpack) $
 /* [wxMaxima: input   end   ] */
@@ -261,7 +260,7 @@ RV : minpack_lsquares( ZFns, [r,xa,ya,xc,α,β,γ], [ir,ixa,iya,ixc,0,0,0] ) ;
    [wxMaxima: comment end   ] */
 
 /* [wxMaxima: input   start ] */
-RV_r : minpack_lsquares( ZFnsSansR, [xa,ya,xc,α,β,γ], [ixa,iya,ixc,0,0,0] ) ;
+RV_r : minpack_lsquares( ZFns_r(ir), [xa,ya,xc,α,β,γ], [ixa,iya,ixc,0,0,0] ) ;
 positionErr_r : sqrt(sqrt(RV_r[2]/length(m))) ;
 /* [wxMaxima: input   end   ] */
 
